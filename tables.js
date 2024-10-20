@@ -1,14 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const apiKey = "e87ad9d755ad6ee678f1952e3c13a8e1"; // Ensure this is your valid API key
+  const apiKey = "e87ad9d755ad6ee678f1952e3c13a8e1";
   const tableBody = document.getElementById("table-body");
   const pagination = document.getElementById("pagination");
-  const city = "London"; // Change to a city you want to fetch
+  const searchInput = document.getElementById("city-search"); // Get the search input
+  const searchButton = document.getElementById("search-button"); // Get the search button
   let forecastData = [];
-  const entriesPerPage = 10; // Show 10 entries per page
+  const entriesPerPage = 10;
+
+  // Default city
+  let city = "London";
 
   // Fetch weather forecast data for the next 5 days
   async function fetchForecast(city) {
     try {
+      console.log(`Fetching forecast for: ${city}`); // Debug log
       const response = await fetch(
         `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
       );
@@ -16,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+      console.log("Fetched data:", data); // Debug log
       if (data.list && data.list.length > 0) {
         processForecastData(data.list);
       } else {
@@ -34,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function processForecastData(data) {
     const dailyTemperatures = {}; // Reset for each fetch
 
-    // Gather temperatures for each day and time
+    // Gather temperatures and weather conditions for each day and time
     data.forEach((entry) => {
       const date = new Date(entry.dt * 1000);
       const dayName = date.toLocaleString("en-US", { weekday: "long" });
@@ -49,18 +55,20 @@ document.addEventListener("DOMContentLoaded", () => {
           minute: "2-digit",
         }),
         temp: entry.main.temp,
+        icon: entry.weather[0].icon, // Get the weather icon code
       });
     });
 
     // Flatten data to create entries for each temperature reading
     forecastData = [];
     for (const [date, { day, temps }] of Object.entries(dailyTemperatures)) {
-      temps.forEach(({ time, temp }) => {
+      temps.forEach(({ time, temp, icon }) => {
         forecastData.push({
           date,
           day,
           time,
           temperature: temp.toFixed(1), // Store formatted temperature
+          icon, // Store the icon code
         });
       });
     }
@@ -79,11 +87,12 @@ document.addEventListener("DOMContentLoaded", () => {
     dataToDisplay.forEach((item) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-                <td class="border border-gray-300 p-2">${item.day}</td>
-                <td class="border border-gray-300 p-2">${item.date}</td>
-                <td class="border border-gray-300 p-2">${item.time}</td>
-                <td class="border border-gray-300 p-2">${item.temperature} °C</td>
-            `;
+          <td class="border border-gray-300 p-2">${item.day}</td>
+          <td class="border border-gray-300 p-2">${item.date}</td>
+          <td class="border border-gray-300 p-2">${item.time}</td>
+          <td class="border border-gray-300 p-2 temp-column">${item.temperature} °C</td>
+          <td class="border border-gray-300 p-2"><img src="https://openweathermap.org/img/wn/${item.icon}@2x.png" alt="Weather Icon" class="w-8 h-8" /></td>
+        `;
       tableBody.appendChild(row);
     });
   }
@@ -104,6 +113,16 @@ document.addEventListener("DOMContentLoaded", () => {
       pagination.appendChild(button);
     }
   }
+
+  // Handle search
+  searchButton.addEventListener("click", () => {
+    city = searchInput.value.trim(); // Get the value from the input
+    if (city) {
+      fetchForecast(city); // Fetch the weather forecast for the searched city
+    } else {
+      alert("Please enter a city name.");
+    }
+  });
 
   // Fetch the forecast for the default city when the page loads
   fetchForecast(city);

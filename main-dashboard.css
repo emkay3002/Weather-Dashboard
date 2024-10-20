@@ -167,3 +167,53 @@ canvas {
     margin: 0 10px;
     /* Horizontal margin */
 }
+
+/* Styles for compact table */
+#forecast-table {
+    width: auto;
+    /* Allow the table to adjust its width */
+    margin: 0;
+    /* Remove margin */
+}
+
+#forecast-table th,
+#forecast-table td {
+    padding: 4px;
+    /* Reduce padding */
+    font-size: 0.875rem;
+    /* Smaller font size */
+}
+
+#forecast-table th {
+    background-color: #e2e8f0;
+    /* Lighter background for headers */
+}
+
+#forecast-table td {
+    border: 1px solid #d1d5db;
+    /* Define border color */
+}
+
+/* Adjust the weather icon class */
+.weather-icon {
+    width: 25px;
+    /* Set a smaller width for weather icons */
+    height: 25px;
+    /* Set a smaller height for weather icons */
+    object-fit: cover;
+    /* Maintain aspect ratio */
+}
+
+/* Update temp-column width for better spacing */
+.temp-column {
+    width: 50px;
+    /* Reduce width for temperature cells */
+    text-align: center;
+    /* Center the temperature text */
+}
+
+/* Adjust the weather icon column width */
+#forecast-table td:last-child {
+    width: 40px;
+    /* Set a fixed width for weather icon cells */
+}
