@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="main-dashboard.css">
+</head>
+
+<body class="bg-gray-100">
+    <header class="bg-teal-800 text-white py-3 px-5 flex justify-between items-center">
+        <div class="flex items-center gap-2 text-xl font-bold">
+            <img src="assets/logo1.png" class="w-10 h-10 object-contain" alt="Logo">
+            <span>Stormly</span>
+        </div>
+        <nav class="flex items-center gap-4">
+            <ul class="flex items-center gap-4">
+                <li class="relative">
+                    <a href="#" id="nav-language-setting"
+                        class="flex items-center text-white hover:bg-teal-700 px-3 py-2 rounded-md">
+                        <span id="selected-language">English</span>
+                        <img id="language-icon" src="assets/usa.png" alt="Flag" class="ml-2 w-5 h-4 object-contain">
+                    </a>
+                    <ul class="hidden absolute bg-teal-800 top-full left-0 min-w-[120px] rounded-md shadow-lg z-10 mt-2"
+                        id="language-dropdown">
+                        <li>
+                            <a href="#" data-language="English" data-icon="assets/usa.png"
+                                class="flex items-center text-white px-4 py-2 hover:bg-teal-700 rounded-md">
+                                <img src="assets/usa.png" alt="English" class="w-5 h-4 mr-2">English
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-language="Arabic" data-icon="assets/ksa.png"
+                                class="flex items-center text-white px-4 py-2 hover:bg-teal-700 rounded-md">
+                                <img src="assets/ksa.png" alt="Arabic" class="w-5 h-4 mr-2">Arabic
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-language="Turkish" data-icon="assets/turkey.png"
+                                class="flex items-center text-white px-4 py-2 hover:bg-teal-700 rounded-md">
+                                <img src="assets/turkey.png" alt="Turkish" class="w-5 h-4 mr-2">Turkish
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-language="German" data-icon="assets/germany.png"
+                                class="flex items-center text-white px-4 py-2 hover:bg-teal-700 rounded-md">
+                                <img src="assets/germany.png" alt="German" class="w-5 h-4 mr-2">German
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-language="Chinese" data-icon="assets/china.png"
+                                class="flex items-center text-white px-4 py-2 hover:bg-teal-700 rounded-md">
+                                <img src="assets/china.png" alt="Chinese" class="w-5 h-4 mr-2">Chinese
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="flex items-center">
+                    <img src="assets/pfp.png" alt="Profile" class="w-10 h-10 rounded-full object-cover cursor-pointer">
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="flex h-[calc(100vh-56px)]">
+        <aside class="bg-teal-900 text-gray-300 w-52 p-5">
+            <ul class="space-y-2">
+                <li><a href="#" id="menu-dashboard"
+                        class="block text-gray-300 hover:bg-teal-700 px-4 py-2 rounded-md">Dashboard</a></li>
+                <li><a href="#" id="menu-tables"
+                        class="block text-gray-300 hover:bg-teal-700 px-4 py-2 rounded-md">Tables</a></li>
+            </ul>
+        </aside>
+        <main class="flex-grow p-5 bg-white overflow-y-auto">
+            <!-- Weather Widget -->
+            <div class="p-4 bg-gray-200 rounded shadow" id="weather-widget">
+                <h2 class="text-xl font-bold" id="city-name">Weather in: City</h2>
+                <p id="weather-description">Description: </p>
+                <p id="temperature">Temperature: </p>
+                <img id="weather-icon" src="" alt="Weather Icon" class="w-16 h-16 mt-2">
+                <input type="text" id="city-input" placeholder="Enter city name" class="border p-2 rounded w-full">
+                <button id="get-weather" class="bg-blue-500 p-2 rounded text-white mt-2">Get Weather</button>
+            </div>
+        </main>
+    </div>
+
+    <canvas id="temperatureChart" class="mt-5"></canvas>
+    <canvas id="weatherConditionChart" class="mt-5"></canvas>
+    <canvas id="temperatureChangeChart" class="mt-5"></canvas>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const apiKey = "e87ad9d755ad6ee678f1952e3c13a8e1"; // Replace with your OpenWeather API key
+            const weatherWidget = document.getElementById("weather-widget");
+            const cityName = document.getElementById("city-name");
+            const weatherDescription = document.getElementById("weather-description");
+            const temperature = document.getElementById("temperature");
+            const weatherIcon = document.getElementById("weather-icon");
+            const cityInput = document.getElementById("city-input");
+            const getWeatherButton = document.getElementById("get-weather");
+
+            getWeatherButton.addEventListener("click", () => {
+                const city = cityInput.value;
+                fetchWeather(city);
+                fetchForecast(city);
+            });
+
+            async function fetchWeather(city) {
+                try {
+                    const response = await fetch(
+                        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+                    );
+                    if (!response.ok) {
+                        throw new Error("City not found");
+                    }
+                    const data = await response.json();
+                    updateWidget(data);
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+
+            function updateWidget(data) {
+                const { name } = data;
+                const { description, icon } = data.weather[0];
+                const { temp } = data.main;
+
+                cityName.textContent = `Weather in: ${name}`;
+                weatherDescription.textContent = `Description: ${description}`;
+                temperature.textContent = `Temperature: ${temp} °C`;
+
+                weatherIcon.src = `http://openweathermap.org/img/wn/${icon}@2x.png`;
+                weatherIcon.alt = description;
+
+                changeBackground(description);
+            }
+
+            function changeBackground(condition) {
+                let bgColor;
+
+                switch (condition) {
+                    case "clear sky":
+                        bgColor = "bg-blue-400";
+                        break;
+                    case "few clouds":
+                        bgColor = "bg-blue-300";
+                        break;
+                    case "scattered clouds":
+                    case "overcast clouds":
+                        bgColor = "bg-gray-400";
+                        break;
+                    case "rain":
+                        bgColor = "bg-gray-600";
+                        break;
+                    case "thunderstorm":
+                        bgColor = "bg-gray-800";
+                        break;
+                    case "snow":
+                        bgColor = "bg-white";
+                        break;
+                    default:
+                        bgColor = "bg-gray-100";
+                        break;
+                }
+
+                weatherWidget.className = `p-4 rounded shadow ${bgColor}`;
+            }
+
+            // Load Chart.js
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+            document.head.appendChild(script);
+
+            script.onload = () => {
+                const temperatureCtx = document.getElementById("temperatureChart").getContext("2d");
+                const weatherConditionCtx = document.getElementById("weatherConditionChart").getContext("2d");
+                const temperatureChangeCtx = document.getElementById("temperatureChangeChart").getContext("2d");
+
+                const temperatureData = [];
+                const weatherConditions = [];
+                const labels = [];
+
+                async function fetchForecast(city) {
+                    try {
+                        const response = await fetch(
+                            `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
+                        );
+                        if (!response.ok) {
+                            throw new Error("City not found");
+                        }
+                        const data = await response.json();
+                        processForecastData(data);
+                    } catch (error) {
+                        alert(error.message);
+                    }
+                }
+
+                function processForecastData(data) {
+                    const dailyData = data.list.filter((entry) =>
+                        entry.dt_txt.endsWith("12:00:00")
+                    );
+                    dailyData.forEach((entry) => {
+                        const date = new Date(entry.dt * 1000).toLocaleDateString();
+                        labels.push(date);
+                        temperatureData.push(entry.main.temp);
+                        weatherConditions.push(entry.weather[0].description);
+                    });
+                    updateCharts();
+                }
+
+                function updateCharts() {
+                    new Chart(temperatureCtx, {
+                        type: "bar",
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: "Temperature (°C)",
+                                    data: temperatureData,
+                                    backgroundColor: "rgba(54, 162, 235, 0.5)",
+                                    borderColor: "rgba(54, 162, 235, 1)",
+                                    borderWidth: 1,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                },
+                            },
+                        },
+                    });
+
+                    const weatherConditionCounts = weatherConditions.reduce((acc, condition) => {
+                        acc[condition] = (acc[condition] || 0) + 1;
+                        return acc;
+                    }, {});
+
+                    new Chart(weatherConditionCtx, {
+                        type: "doughnut",
+                        data: {
+                            labels: Object.keys(weatherConditionCounts),
+                            datasets: [
+                                {
+                                    label: "Weather Conditions",
+                                    data: Object.values(weatherConditionCounts),
+                                    backgroundColor: [
+                                        "rgba(255, 99, 132, 0.2)",
+                                        "rgba(75, 192, 192, 0.2)",
+                                        "rgba(255, 206, 86, 0.2)",
+                                        "rgba(153, 102, 255, 0.2)",
+                                    ],
+                                    borderColor: [
+                                        "rgba(255, 99, 132, 1)",
+                                        "rgba(75, 192, 192, 1)",
+                                        "rgba(255, 206, 86, 1)",
+                                        "rgba(153, 102, 255, 1)",
+                                    ],
+                                    borderWidth: 1,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                        },
+                    });
+
+                    new Chart(temperatureChangeCtx, {
+                        type: "line",
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: "Temperature Change (°C)",
+                                    data: temperatureData,
+                                    backgroundColor: "rgba(75, 192, 192, 0.5)",
+                                    borderColor: "rgba(75, 192, 192, 1)",
+                                    borderWidth: 2,
+                                    fill: true,
+                                },
+                            ],
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                },
+                            },
+                        },
+                    });
+                }
+            };
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,160 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+}
+
+.navbar {
+    background-color: #254E58;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-brand .logo {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    list-style: none;
+}
+
+.profile-option {
+    display: flex;
+    align-items: center;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    margin-right: 10px;
+    /* Space between profile image and text */
+}
+
+.language-setting {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.language-setting a {
+    color: #fff;
+    text-decoration: none;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+}
+
+.flag-icon {
+    width: 20px;
+    height: 15px;
+    margin-left: 5px;
+    vertical-align: middle;
+    /* Aligns icon vertically with text */
+}
+
+.language-dropdown {
+    display: none;
+    position: absolute;
+    background-color: #254E58;
+    top: 100%;
+    left: 0;
+    min-width: 120px;
+    border-radius: 5px;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.language-setting:hover .language-dropdown {
+    display: block;
+}
+
+.language-dropdown li {
+    list-style: none;
+}
+
+.language-dropdown a {
+    color: #fff;
+    padding: 10px;
+    display: block;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.language-dropdown a:hover {
+    background-color: #0056b3;
+}
+
+.container {
+    display: flex;
+    height: calc(100vh - 50px);
+}
+
+.sidebar {
+    background-color: #112D32;
+    color: #ddd;
+    width: 200px;
+    padding: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar a {
+    color: #ddd;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar a:hover {
+    background-color: #4F4A41;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background: #ffffff;
+    overflow-y: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-menu {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+}
