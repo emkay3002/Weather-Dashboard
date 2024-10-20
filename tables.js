@@ -1,129 +1,228 @@
 document.addEventListener("DOMContentLoaded", () => {
   const apiKey = "e87ad9d755ad6ee678f1952e3c13a8e1";
+  const Gemini_ApiKey = "AIzaSyAlrBl1tlhFTMU67FeWNI0h3fqMli9Qpuo";
   const tableBody = document.getElementById("table-body");
   const pagination = document.getElementById("pagination");
-  const searchInput = document.getElementById("city-search"); // Get the search input
-  const searchButton = document.getElementById("search-button"); // Get the search button
+  const searchInput = document.getElementById("city-search");
+  const searchButton = document.getElementById("search-button");
+  const chatBox = document.getElementById("chat-box");
+  const chatInput = document.getElementById("chat-input");
+  const sendButton = document.getElementById("send-button");
+
   let forecastData = [];
+  let filteredData = [];
   const entriesPerPage = 10;
 
   // Default city
   let city = "London";
 
   // Fetch weather forecast data for the next 5 days
-  async function fetchForecast(city) {
-    try {
-      console.log(`Fetching forecast for: ${city}`); // Debug log
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("Fetched data:", data); // Debug log
-      if (data.list && data.list.length > 0) {
-        processForecastData(data.list);
-      } else {
-        console.error("No forecast data found");
-        alert("No forecast data available for this city.");
-      }
-    } catch (error) {
-      console.error("Error fetching forecast:", error);
-      alert(
-        "Failed to fetch forecast data. Please check your city name or API key."
-      );
-    }
+  function fetchForecast(city) {
+    console.log(`Fetching forecast for: ${city}`); // Debug log
+    $.ajax({
+      url: `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`,
+      type: "GET",
+      success: function (data) {
+        console.log("Fetched data:", data); // Debug log
+        if (data.list && data.list.length > 0) {
+          processForecastData(data.list);
+        } else {
+          console.error("No forecast data found");
+          alert("No forecast data available for this city.");
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Error fetching forecast:", error);
+        alert(
+          "Failed to fetch forecast data. Please check your city name or API key."
+        );
+      },
+    });
   }
 
   // Process the forecast data and store it in forecastData
   function processForecastData(data) {
-    const dailyTemperatures = {}; // Reset for each fetch
-
-    // Gather temperatures and weather conditions for each day and time
-    data.forEach((entry) => {
+    forecastData = data.map((entry) => {
       const date = new Date(entry.dt * 1000);
       const dayName = date.toLocaleString("en-US", { weekday: "long" });
-      const dateKey = date.toISOString().split("T")[0]; // Key by date
-
-      if (!dailyTemperatures[dateKey]) {
-        dailyTemperatures[dateKey] = { day: dayName, temps: [] };
-      }
-      dailyTemperatures[dateKey].temps.push({
-        time: date.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        temp: entry.main.temp,
-        icon: entry.weather[0].icon, // Get the weather icon code
+      const dateString = date.toLocaleDateString("en-US");
+      const timeString = date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
       });
+      const temp = entry.main.temp;
+      const weatherIcon = entry.weather[0].icon;
+
+      return {
+        day: dayName,
+        date: dateString,
+        time: timeString,
+        temperature: temp.toFixed(2), // Ensure it's displayed as a string with 2 decimal places
+        weatherIcon,
+      };
     });
 
-    // Flatten data to create entries for each temperature reading
-    forecastData = [];
-    for (const [date, { day, temps }] of Object.entries(dailyTemperatures)) {
-      temps.forEach(({ time, temp, icon }) => {
-        forecastData.push({
-          date,
-          day,
-          time,
-          temperature: temp.toFixed(1), // Store formatted temperature
-          icon, // Store the icon code
-        });
-      });
-    }
-
-    renderTable(); // Render the first page of the table
-    renderPagination(); // Render pagination controls
+    console.log("Processed forecast data:", forecastData); // Debug log
+    filteredData = [...forecastData]; // Initialize filtered data
+    displayTableData(1);
   }
 
-  // Render the forecast data into the table
-  function renderTable(page = 1) {
-    tableBody.innerHTML = "";
-    const start = (page - 1) * entriesPerPage;
-    const end = start + entriesPerPage;
+  // Display the forecast data in the table and handle pagination
+  function displayTableData(page) {
+    const startIndex = (page - 1) * entriesPerPage;
+    const endIndex = startIndex + entriesPerPage;
 
-    const dataToDisplay = forecastData.slice(start, end);
-    dataToDisplay.forEach((item) => {
+    // Clear the existing table body
+    tableBody.innerHTML = "";
+
+    // Populate the table with data for the current page
+    const currentData = filteredData.slice(startIndex, endIndex);
+    currentData.forEach((entry) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-          <td class="border border-gray-300 p-2">${item.day}</td>
-          <td class="border border-gray-300 p-2">${item.date}</td>
-          <td class="border border-gray-300 p-2">${item.time}</td>
-          <td class="border border-gray-300 p-2 temp-column">${item.temperature} °C</td>
-          <td class="border border-gray-300 p-2"><img src="https://openweathermap.org/img/wn/${item.icon}@2x.png" alt="Weather Icon" class="w-8 h-8" /></td>
-        `;
+                <td class="border border-gray-300 p-2">${entry.day}</td>
+                <td class="border border-gray-300 p-2">${entry.date}</td>
+                <td class="border border-gray-300 p-2">${entry.time}</td>
+                <td class="border border-gray-300 p-2">${entry.temperature} °C</td>
+                <td class="border border-gray-300 p-2">
+                    <img src="https://openweathermap.org/img/w/${entry.weatherIcon}.png" alt="Weather icon" class="w-10 h-10"/>
+                </td>
+            `;
       tableBody.appendChild(row);
     });
+
+    // Update pagination
+    const totalPages = Math.ceil(filteredData.length / entriesPerPage);
+    updatePagination(page, totalPages);
   }
 
-  // Render pagination buttons
-  function renderPagination() {
+  // Update pagination controls
+  function updatePagination(currentPage, totalPages) {
     pagination.innerHTML = "";
-    const pageCount = Math.ceil(forecastData.length / entriesPerPage);
-
-    for (let i = 1; i <= pageCount; i++) {
-      const button = document.createElement("button");
-      button.textContent = i;
-      button.className =
-        "border border-gray-300 px-4 py-2 mx-1 hover:bg-gray-200";
-      button.addEventListener("click", () => {
-        renderTable(i);
-      });
-      pagination.appendChild(button);
+    for (let i = 1; i <= totalPages; i++) {
+      const pageButton = document.createElement("button");
+      pageButton.innerText = i;
+      pageButton.className = `border border-gray-300 px-3 py-1 rounded-md ${
+        currentPage === i ? "bg-teal-700 text-white" : "text-teal-700"
+      }`;
+      pageButton.onclick = () => {
+        displayTableData(i);
+      };
+      pagination.appendChild(pageButton);
     }
   }
 
-  // Handle search
+  // Handle city search
   searchButton.addEventListener("click", () => {
-    city = searchInput.value.trim(); // Get the value from the input
-    if (city) {
-      fetchForecast(city); // Fetch the weather forecast for the searched city
+    const newCity = searchInput.value.trim();
+    if (newCity) {
+      city = newCity;
+      fetchForecast(city);
     } else {
       alert("Please enter a city name.");
     }
   });
 
-  // Fetch the forecast for the default city when the page loads
+  // Filter buttons functionality
+  const filterButtons = document.querySelectorAll(".filter-button");
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const filterType = button.id;
+
+      switch (filterType) {
+        case "filter-all":
+          filteredData = [...forecastData]; // Show all data
+          break;
+        case "filter-cold":
+          filteredData = forecastData.filter(
+            (entry) => parseFloat(entry.temperature) < 15
+          );
+          break;
+        case "filter-warm":
+          filteredData = forecastData.filter(
+            (entry) =>
+              parseFloat(entry.temperature) >= 15 &&
+              parseFloat(entry.temperature) <= 25
+          );
+          break;
+        case "filter-hot":
+          filteredData = forecastData.filter(
+            (entry) => parseFloat(entry.temperature) > 25
+          );
+          break;
+        default:
+          filteredData = [...forecastData]; // Default to show all
+      }
+      displayTableData(1); // Reset to the first page after filtering
+    });
+  });
+
+  // Add a message to the chat box
+  function addMessageToChat(sender, message) {
+    const messageElement = document.createElement("div");
+    messageElement.className = `mb-2 p-2 rounded-lg ${
+      sender === "User"
+        ? "bg-teal-700 text-white text-right"
+        : "bg-gray-200 text-left"
+    }`;
+    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  // Chatbot functionality
+  sendButton.addEventListener("click", () => {
+    const userInput = chatInput.value.trim();
+    if (userInput) {
+      addMessageToChat("User", userInput);
+      chatInput.value = "";
+      getChatbotReply(userInput).then((botReply) => {
+        addMessageToChat("Stormly", botReply);
+      });
+    }
+  });
+
+  // Function to get a response from the Gemini API
+  async function getChatbotReply(userMessage) {
+    console.log(`Sending query to Gemini: ${userMessage}`);
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${Gemini_ApiKey}`;
+    console.log(`Requesting from Gemini API: ${geminiUrl}`);
+
+    return $.ajax({
+      url: geminiUrl,
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: userMessage,
+              },
+            ],
+          },
+        ],
+      }),
+    })
+      .then((response) => {
+        console.log("Gemini API Response: ", response);
+
+        if (response && response.candidates && response.candidates[0]) {
+          const result =
+            response.candidates[0].content.parts[0]?.text ||
+            "I couldn't find an answer.";
+          return result;
+        } else {
+          return "No valid response from the Gemini API.";
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        return "Error processing your query.";
+      });
+  }
+
+  // Initial fetch for default city
   fetchForecast(city);
 });
