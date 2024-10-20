@@ -1,9 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const apiKey = "e87ad9d755ad6ee678f1952e3c13a8e1";
+  const apiKey = "e87ad9d755ad6ee678f1952e3c13a8e1"; // Ensure this is your valid API key
   const tableBody = document.getElementById("table-body");
   const pagination = document.getElementById("pagination");
+  const city = "London"; // Change to a city you want to fetch
   let forecastData = [];
-  const entriesPerPage = 10;
+  const entriesPerPage = 10; // Show 10 entries per page
 
   // Fetch weather forecast data for the next 5 days
   async function fetchForecast(city) {
@@ -12,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
       );
       if (!response.ok) {
-        throw new Error("City not found");
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       if (data.list && data.list.length > 0) {
@@ -23,20 +24,49 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("Error fetching forecast:", error);
-      alert("Failed to fetch forecast data. Please try again.");
+      alert(
+        "Failed to fetch forecast data. Please check your city name or API key."
+      );
     }
   }
 
   // Process the forecast data and store it in forecastData
   function processForecastData(data) {
-    forecastData = data
-      .map((entry) => ({
-        date: new Date(entry.dt * 1000).toLocaleDateString(),
-        temperature: entry.main.temp,
-      }))
-      .slice(0, 10); // Get only the first 10 entries
-    renderTable();
-    renderPagination();
+    const dailyTemperatures = {}; // Reset for each fetch
+
+    // Gather temperatures for each day and time
+    data.forEach((entry) => {
+      const date = new Date(entry.dt * 1000);
+      const dayName = date.toLocaleString("en-US", { weekday: "long" });
+      const dateKey = date.toISOString().split("T")[0]; // Key by date
+
+      if (!dailyTemperatures[dateKey]) {
+        dailyTemperatures[dateKey] = { day: dayName, temps: [] };
+      }
+      dailyTemperatures[dateKey].temps.push({
+        time: date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        temp: entry.main.temp,
+      });
+    });
+
+    // Flatten data to create entries for each temperature reading
+    forecastData = [];
+    for (const [date, { day, temps }] of Object.entries(dailyTemperatures)) {
+      temps.forEach(({ time, temp }) => {
+        forecastData.push({
+          date,
+          day,
+          time,
+          temperature: temp.toFixed(1), // Store formatted temperature
+        });
+      });
+    }
+
+    renderTable(); // Render the first page of the table
+    renderPagination(); // Render pagination controls
   }
 
   // Render the forecast data into the table
@@ -49,7 +79,9 @@ document.addEventListener("DOMContentLoaded", () => {
     dataToDisplay.forEach((item) => {
       const row = document.createElement("tr");
       row.innerHTML = `
+                <td class="border border-gray-300 p-2">${item.day}</td>
                 <td class="border border-gray-300 p-2">${item.date}</td>
+                <td class="border border-gray-300 p-2">${item.time}</td>
                 <td class="border border-gray-300 p-2">${item.temperature} °C</td>
             `;
       tableBody.appendChild(row);
@@ -73,6 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Fetch the forecast for a default city when the page loads
-  fetchForecast("London"); // Change "London" to any default city you want
+  // Fetch the forecast for the default city when the page loads
+  fetchForecast(city);
 });
