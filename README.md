@@ -29,3 +29,34 @@ To set up the project locally, follow these steps:
 1. **Clone the Repository**
    ```bash
    git clone https://github.com/yourusername/stormly.git
+2. Navigate to the Project Directory
+ ```bash
+cd stormly
+
+Open the index.html File in your browser.
+
+API Key Setup:
+
+Sign up for an API key from OpenWeather.
+Replace the placeholder in your JavaScript code with your API key.
+Usage
+Get Weather: Enter a city name in the input field and click the "Get Weather" button to fetch and display current weather conditions and the 5-day forecast.
+Unit Toggle: Use the toggle button to switch between Celsius and Fahrenheit.
+Language Selection: Select your preferred language from the dropdown menu.
+Chatbot Interaction: Ask the chatbot about weather specifics like the highest or lowest temperatures.
+API Integration
+Stormly integrates with the following APIs:
+
+OpenWeather API: For fetching current weather data and forecasts.
+Gemini API: For processing user queries in the chatbot.
+Customization
+Feel free to customize the styles and layout of the dashboard. You can change the color scheme by modifying the CSS in styles.css and update the content by editing the HTML files.
+
+License
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+Acknowledgments
+OpenWeather API for providing weather data.
+Gemini API for chatbot functionality.
+Tailwind CSS for utility-first CSS styling.
+Chart.js for data visualization.
