@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Temperature Chart
+    // Temperature Chart (Bar Chart with Delay Animation)
     new Chart(document.getElementById("temperatureChart"), {
       type: "bar",
       data: {
@@ -137,6 +137,14 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       options: {
         responsive: true,
+        animation: {
+          delay: (context) => {
+            if (context.type === "data" && context.mode === "default") {
+              return context.dataIndex * 100; // Delay for each bar
+            }
+            return 0; // No delay for other animation types
+          },
+        },
         scales: {
           y: {
             beginAtZero: true,
@@ -145,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
 
-    // Weather Condition Chart
+    // Weather Condition Chart (Doughnut Chart with Delay Animation)
     const weatherConditionCounts = weatherConditions.reduce(
       (acc, condition) => {
         acc[condition] = (acc[condition] || 0) + 1;
@@ -180,10 +188,18 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       options: {
         responsive: true,
+        animation: {
+          delay: (context) => {
+            if (context.type === "data" && context.mode === "default") {
+              return context.dataIndex * 100; // Delay for each segment
+            }
+            return 0; // No delay for other animation types
+          },
+        },
       },
     });
 
-    // Temperature Change Chart
+    // Temperature Change Chart (Line Chart with Drop Animation)
     new Chart(document.getElementById("temperatureChangeChart"), {
       type: "line",
       data: {
@@ -196,11 +212,25 @@ document.addEventListener("DOMContentLoaded", () => {
             borderColor: "rgba(75, 192, 192, 1)",
             borderWidth: 2,
             fill: true,
+            tension: 0.4, // Smooth the line
           },
         ],
       },
       options: {
         responsive: true,
+        animation: {
+          onComplete: function () {
+            this.tooltip._active = [];
+            this.tooltip.update();
+            this.draw();
+          },
+          delay: (context) => {
+            if (context.type === "data" && context.mode === "default") {
+              return context.dataIndex * 100; // Delay for each point
+            }
+            return 0; // No delay for other animation types
+          },
+        },
         scales: {
           y: {
             beginAtZero: true,
