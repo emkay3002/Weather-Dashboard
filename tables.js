@@ -80,14 +80,14 @@ document.addEventListener("DOMContentLoaded", () => {
     currentData.forEach((entry) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-                <td class="border border-gray-300 p-2">${entry.day}</td>
-                <td class="border border-gray-300 p-2">${entry.date}</td>
-                <td class="border border-gray-300 p-2">${entry.time}</td>
-                <td class="border border-gray-300 p-2">${entry.temperature} °C</td>
-                <td class="border border-gray-300 p-2">
-                    <img src="https://openweathermap.org/img/w/${entry.weatherIcon}.png" alt="Weather icon" class="w-10 h-10"/>
-                </td>
-            `;
+                  <td class="border border-gray-300 p-2">${entry.day}</td>
+                  <td class="border border-gray-300 p-2">${entry.date}</td>
+                  <td class="border border-gray-300 p-2">${entry.time}</td>
+                  <td class="border border-gray-300 p-2">${entry.temperature} °C</td>
+                  <td class="border border-gray-300 p-2">
+                      <img src="https://openweathermap.org/img/w/${entry.weatherIcon}.png" alt="Weather icon" class="w-10 h-10"/>
+                  </td>
+              `;
       tableBody.appendChild(row);
     });
 
@@ -185,6 +185,27 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to get a response from the Gemini API
   async function getChatbotReply(userMessage) {
     console.log(`Sending query to Gemini: ${userMessage}`);
+
+    // Check if the message contains weather-related keywords
+    const weatherKeywords = ["weather", "temperature", "forecast", "Islamabad"];
+    const isWeatherQuery = weatherKeywords.some((keyword) =>
+      userMessage.toLowerCase().includes(keyword)
+    );
+
+    // If it's a weather query, respond with available data
+    if (isWeatherQuery) {
+      const today = new Date().toLocaleDateString();
+      const cityForecast = forecastData.find((entry) => {
+        const entryDate = new Date(entry.dt * 1000).toLocaleDateString();
+        return entryDate === today;
+      });
+
+      if (cityForecast) {
+        return `The weather in Islamabad today is ${cityForecast.temperature} °C.`;
+      } else {
+        return "I'm not sure about the weather right now. Please check back later.";
+      }
+    }
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${Gemini_ApiKey}`;
     console.log(`Requesting from Gemini API: ${geminiUrl}`);

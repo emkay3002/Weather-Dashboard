@@ -84,13 +84,19 @@
             <div class="p-4 bg-gray-200 rounded shadow" id="weather-widget">
                 <h2 class="text-xl font-bold" id="city-name">Weather in: City</h2>
                 <p id="weather-description">Description:</p>
-                <p id="temperature">Temperature:</p>
+                <p id="temperature">Temperature: <span id="temp-value"></span> °C</p>
+                <p id="weather-humidity">Humidity:</p>
                 <img id="weather-icon" src="" alt="Weather Icon" class="w-16 h-16 mt-2" />
                 <input type="text" id="city-input" placeholder="Enter city name" class="border p-2 rounded w-full" />
-                <button id="get-weather" class="bg-blue-500 p-2 rounded text-white mt-2">
-                    Get Weather
-                </button>
+
+                <!-- New div for aligning buttons -->
+                <div class="flex justify-between mt-2">
+                    <button id="get-weather" class="bg-teal-600 p-2 rounded text-white">Get Weather</button>
+                    <button id="toggle-unit" class="bg-teal-600 p-2 rounded text-white">Switch to °F</button>
+                </div>
             </div>
+
+
             <div class="main-content flex flex-wrap justify-between">
                 <div class="bg-white shadow-md rounded-lg p-4 m-2 flex-1 max-w-xs">
                     <h3 class="text-lg font-bold mb-2">Temperature Chart</h3>

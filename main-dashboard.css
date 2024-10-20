@@ -141,6 +141,14 @@ html {
     min-height: 100vh;
 }
 
+#weather-widget {
+    height: 300px;
+    transition: background-image 0.5s ease;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
     .navbar-menu {
         flex-direction: column;
@@ -159,61 +167,61 @@ html {
 
 canvas {
     width: 300px;
-    /* Set the width of each canvas */
+
     height: auto;
-    /* Maintain aspect ratio */
+
     max-width: 100%;
-    /* Prevent stretching beyond container */
+
     margin: 0 10px;
-    /* Horizontal margin */
+
 }
 
-/* Styles for compact table */
+
 #forecast-table {
-    width: auto;
-    /* Allow the table to adjust its width */
+    width: 100%;
+
     margin: 0;
-    /* Remove margin */
+
 }
 
 #forecast-table th,
 #forecast-table td {
-    padding: 4px;
-    /* Reduce padding */
+    padding: 8px;
+
     font-size: 0.875rem;
-    /* Smaller font size */
+
 }
 
 #forecast-table th {
     background-color: #e2e8f0;
-    /* Lighter background for headers */
+
 }
 
 #forecast-table td {
     border: 1px solid #d1d5db;
-    /* Define border color */
+
 }
 
-/* Adjust the weather icon class */
+
 .weather-icon {
-    width: 25px;
-    /* Set a smaller width for weather icons */
-    height: 25px;
-    /* Set a smaller height for weather icons */
+    width: 30px;
+
+    height: 30px;
+
     object-fit: cover;
-    /* Maintain aspect ratio */
+
 }
 
-/* Update temp-column width for better spacing */
+
 .temp-column {
-    width: 50px;
-    /* Reduce width for temperature cells */
+    width: 60px;
+
     text-align: center;
-    /* Center the temperature text */
+
 }
 
-/* Adjust the weather icon column width */
+
 #forecast-table td:last-child {
-    width: 40px;
-    /* Set a fixed width for weather icon cells */
+    width: 50px;
+
 }
