@@ -75,7 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
         bgColor = "bg-gray-100";
         break;
     }
-    document.getElementById("weather-widget").classList.add(bgColor);
+    document.getElementById(
+      "weather-widget"
+    ).className = `p-4 rounded shadow ${bgColor}`;
   }
 
   async function fetchForecast(city) {
@@ -84,156 +86,121 @@ document.addEventListener("DOMContentLoaded", () => {
         `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`
       );
       if (!response.ok) {
-        throw new Error("City not found");
+        throw new Error("Forecast not found");
       }
-      const forecastData = await response.json();
-      if (forecastData.list && forecastData.list.length > 0) {
-        processForecastData(forecastData.list);
-      } else {
-        console.error("No forecast data found");
-        alert("No forecast data available for this city.");
-      }
+      const data = await response.json();
+      const temperatureData = data.list.map((item) => item.main.temp);
+      const weatherConditionData = data.list.map(
+        (item) => item.weather[0].main
+      );
+      const temperatureChangeData = data.list.map((item) => item.main.temp);
+
+      createTemperatureChart(temperatureData);
+      createWeatherConditionChart(weatherConditionData);
+      createTemperatureChangeChart(temperatureChangeData);
     } catch (error) {
       console.error("Error fetching forecast:", error);
       alert("Failed to fetch forecast data. Please try again.");
     }
   }
 
-  function processForecastData(data) {
-    const labels = [];
-    const temperatureData = [];
-    const weatherConditions = [];
-
-    data.forEach((entry) => {
-      const date = new Date(entry.dt * 1000).toLocaleDateString();
-      labels.push(date);
-      temperatureData.push(entry.main.temp);
-      weatherConditions.push(entry.weather[0].description);
-    });
-
-    updateCharts(labels, temperatureData, weatherConditions);
-  }
-
-  function updateCharts(labels, temperatureData, weatherConditions) {
-    if (typeof Chart === "undefined") {
-      console.error("Chart.js failed to load.");
-      return;
-    }
-
-    // Temperature Chart (Bar Chart with Delay Animation)
-    new Chart(document.getElementById("temperatureChart"), {
-      type: "bar",
+  function createTemperatureChart(temperatureData) {
+    const ctx = document.getElementById("temperatureChart").getContext("2d");
+    const temperatureChart = new Chart(ctx, {
+      type: "line",
       data: {
-        labels: labels,
+        labels: temperatureData.map((_, index) => `Day ${index + 1}`),
         datasets: [
           {
             label: "Temperature (°C)",
             data: temperatureData,
-            backgroundColor: "rgba(54, 162, 235, 0.5)",
-            borderColor: "rgba(54, 162, 235, 1)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
             borderWidth: 1,
           },
         ],
       },
       options: {
         responsive: true,
-        animation: {
-          delay: (context) => {
-            if (context.type === "data" && context.mode === "default") {
-              return context.dataIndex * 100; // Delay for each bar
-            }
-            return 0; // No delay for other animation types
-          },
-        },
         scales: {
           y: {
             beginAtZero: true,
+            title: {
+              display: true,
+              text: "Temperature (°C)",
+            },
           },
         },
       },
     });
+  }
 
-    // Weather Condition Chart (Doughnut Chart with Delay Animation)
-    const weatherConditionCounts = weatherConditions.reduce(
-      (acc, condition) => {
-        acc[condition] = (acc[condition] || 0) + 1;
-        return acc;
-      },
-      {}
-    );
+  function createWeatherConditionChart(weatherConditionData) {
+    const ctx = document
+      .getElementById("weatherConditionChart")
+      .getContext("2d");
+    const conditionCount = weatherConditionData.reduce((acc, condition) => {
+      acc[condition] = (acc[condition] || 0) + 1;
+      return acc;
+    }, {});
 
-    new Chart(document.getElementById("weatherConditionChart"), {
+    const labels = Object.keys(conditionCount);
+    const data = Object.values(conditionCount);
+
+    const weatherConditionChart = new Chart(ctx, {
       type: "doughnut",
-      data: {
-        labels: Object.keys(weatherConditionCounts),
-        datasets: [
-          {
-            label: "Weather Conditions",
-            data: Object.values(weatherConditionCounts),
-            backgroundColor: [
-              "rgba(255, 99, 132, 0.2)",
-              "rgba(75, 192, 192, 0.2)",
-              "rgba(255, 206, 86, 0.2)",
-              "rgba(153, 102, 255, 0.2)",
-            ],
-            borderColor: [
-              "rgba(255, 99, 132, 1)",
-              "rgba(75, 192, 192, 1)",
-              "rgba(255, 206, 86, 1)",
-              "rgba(153, 102, 255, 1)",
-            ],
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        animation: {
-          delay: (context) => {
-            if (context.type === "data" && context.mode === "default") {
-              return context.dataIndex * 100; // Delay for each segment
-            }
-            return 0; // No delay for other animation types
-          },
-        },
-      },
-    });
-
-    // Temperature Change Chart (Line Chart with Drop Animation)
-    new Chart(document.getElementById("temperatureChangeChart"), {
-      type: "line",
       data: {
         labels: labels,
         datasets: [
           {
-            label: "Temperature Change (°C)",
-            data: temperatureData,
-            backgroundColor: "rgba(75, 192, 192, 0.5)",
-            borderColor: "rgba(75, 192, 192, 1)",
-            borderWidth: 2,
-            fill: true,
-            tension: 0.4, // Smooth the line
+            data: data,
+            backgroundColor: [
+              "rgba(255, 99, 132, 0.6)",
+              "rgba(54, 162, 235, 0.6)",
+              "rgba(255, 206, 86, 0.6)",
+              "rgba(75, 192, 192, 0.6)",
+              "rgba(153, 102, 255, 0.6)",
+            ],
           },
         ],
       },
       options: {
         responsive: true,
-        animation: {
-          onComplete: function () {
-            this.tooltip._active = [];
-            this.tooltip.update();
-            this.draw();
-          },
-          delay: (context) => {
-            if (context.type === "data" && context.mode === "default") {
-              return context.dataIndex * 100; // Delay for each point
-            }
-            return 0; // No delay for other animation types
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
           },
         },
+      },
+    });
+  }
+
+  function createTemperatureChangeChart(temperatureChangeData) {
+    const ctx = document
+      .getElementById("temperatureChangeChart")
+      .getContext("2d");
+    const temperatureChangeChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: temperatureChangeData.map((_, index) => `Day ${index + 1}`),
+        datasets: [
+          {
+            label: "Temperature Change (°C)",
+            data: temperatureChangeData,
+            backgroundColor: "rgba(255, 159, 64, 0.6)",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
         scales: {
           y: {
             beginAtZero: true,
+            title: {
+              display: true,
+              text: "Temperature Change (°C)",
+            },
           },
         },
       },

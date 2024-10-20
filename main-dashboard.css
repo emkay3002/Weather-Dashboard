@@ -158,7 +158,12 @@ html {
 }
 
 canvas {
-    display: block;
+    width: 300px;
+    /* Set the width of each canvas */
+    height: auto;
+    /* Maintain aspect ratio */
     max-width: 100%;
-    margin: 20px auto;
+    /* Prevent stretching beyond container */
+    margin: 0 10px;
+    /* Horizontal margin */
 }

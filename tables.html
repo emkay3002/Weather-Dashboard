@@ -4,10 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weather Dashboard</title>
+    <title>Weather Dashboard - Tables</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="main-dashboard.css" />
 </head>
 
@@ -70,44 +68,32 @@
         <aside class="bg-teal-900 text-gray-300 w-52 p-5">
             <ul class="space-y-2">
                 <li>
-                    <a href="#" id="menu-dashboard"
+                    <a href="index.html" id="menu-dashboard"
                         class="block text-gray-300 hover:bg-teal-700 px-4 py-2 rounded-md">Dashboard</a>
                 </li>
                 <li>
-                    <a href="#" id="menu-tables"
+                    <a href="tables.html" id="menu-tables"
                         class="block text-gray-300 hover:bg-teal-700 px-4 py-2 rounded-md">Tables</a>
                 </li>
             </ul>
         </aside>
         <main class="flex-grow p-5 bg-white overflow-y-auto">
-            <!-- Weather Widget -->
-            <div class="p-4 bg-gray-200 rounded shadow" id="weather-widget">
-                <h2 class="text-xl font-bold" id="city-name">Weather in: City</h2>
-                <p id="weather-description">Description:</p>
-                <p id="temperature">Temperature:</p>
-                <img id="weather-icon" src="" alt="Weather Icon" class="w-16 h-16 mt-2" />
-                <input type="text" id="city-input" placeholder="Enter city name" class="border p-2 rounded w-full" />
-                <button id="get-weather" class="bg-blue-500 p-2 rounded text-white mt-2">
-                    Get Weather
-                </button>
-            </div>
-            <div class="main-content flex flex-wrap justify-between">
-                <div class="bg-white shadow-md rounded-lg p-4 m-2 flex-1 max-w-xs">
-                    <h3 class="text-lg font-bold mb-2">Temperature Chart</h3>
-                    <canvas id="temperatureChart" width="300" height="150"></canvas>
-                </div>
-                <div class="bg-white shadow-md rounded-lg p-4 m-2 flex-1 max-w-xs">
-                    <h3 class="text-lg font-bold mb-2">Weather Condition Chart</h3>
-                    <canvas id="weatherConditionChart" width="300" height="150" class="mb-4"></canvas>
-                </div>
-                <div class="bg-white shadow-md rounded-lg p-4 m-2 flex-1 max-w-xs">
-                    <h3 class="text-lg font-bold mb-2">Temperature Change Chart</h3>
-                    <canvas id="temperatureChangeChart" width="300" height="150"></canvas>
-                </div>
-            </div>
+            <h2 class="text-xl font-bold mb-4">5-Day Temperature Forecast</h2>
+            <table id="forecast-table" class="min-w-full border-collapse border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border border-gray-300 p-2">Date</th>
+                        <th class="border border-gray-300 p-2">Temperature (°C)</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Forecast data will be inserted here -->
+                </tbody>
+            </table>
+            <div id="pagination" class="flex justify-center mt-4"></div>
         </main>
     </div>
-    <script src="main-dashboard.js"></script>
+    <script src="tables.js"></script>
 </body>
 
 </html>
