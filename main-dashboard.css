@@ -48,7 +48,6 @@ html {
     object-fit: cover;
     cursor: pointer;
     margin-right: 10px;
-    /* Space between profile image and text */
 }
 
 .language-setting {
@@ -70,7 +69,6 @@ html {
     height: 15px;
     margin-left: 5px;
     vertical-align: middle;
-    /* Aligns icon vertically with text */
 }
 
 .language-dropdown {
@@ -140,9 +138,9 @@ html {
     padding: 20px;
     background: #ffffff;
     overflow-y: auto;
+    min-height: 100vh;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .navbar-menu {
         flex-direction: column;
@@ -157,4 +155,10 @@ html {
         flex-direction: column;
         height: auto;
     }
+}
+
+canvas {
+    display: block;
+    max-width: 100%;
+    margin: 20px auto;
 }
