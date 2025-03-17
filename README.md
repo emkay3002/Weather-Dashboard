@@ -52,9 +52,6 @@ Gemini API: For processing user queries in the chatbot.
 Customization
 Feel free to customize the styles and layout of the dashboard. You can change the color scheme by modifying the CSS in styles.css and update the content by editing the HTML files.
 
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
-
 Acknowledgments
 OpenWeather API for providing weather data.
 Gemini API for chatbot functionality.
