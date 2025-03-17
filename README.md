@@ -28,10 +28,10 @@ To set up the project locally, follow these steps:
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/stormly.git
+   git clone https://github.com/emkay3002/Weather-Dashboard.git
 2. Navigate to the Project Directory
  ```bash
-cd stormly
+cd Weather-Dashboard
 
 Open the index.html File in your browser.
 
